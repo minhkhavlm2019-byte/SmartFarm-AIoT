@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Người dùng - Smart Farm</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="wrapper">
+        <nav class="sidebar">
+            <div class="logo"><h3>🌱 Smart Farm</h3></div>
+            <ul>
+                <li onclick="location.href='../dashboard.html'"><i class="fas fa-home"></i> Trang Chủ</li>
+                <li onclick="location.href='zones.html'"><i class="fas fa-layer-group"></i> Quản lý Zone</li>
+                <li onclick="location.href='devices.html'"><i class="fas fa-microchip"></i> Thiết bị IoT</li>
+                <li onclick="location.href='users.html'"><i class="fas fa-users"></i> Người dùng</li>
+                <li onclick="logout()" class="logout"><i class="fas fa-sign-out-alt"></i> Đăng xuất</li>
+            </ul>
+        </nav>
+
+        <main class="content">
+            <header>
+                <h2>Quản lý Người dùng</h2>
+                <div class="user-info">Xin chào, <span id="display-name">Admin</span></div>
+            </header>
+
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Tên đăng nhập</th>
+                        <th>Họ và Tên</th>
+                        <th>Quyền hạn</th>
+                        <th>Ngày tạo</th>
+                        <th>Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>admin</td>
+                        <td>Super Admin</td>
+                        <td><span class="tag online">Admin</span></td>
+                        <td>01/01/2026</td>
+                        <td><button class="btn-sm btn-off" disabled>Khóa</button></td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>farmer_a</td>
+                        <td>Nguyễn Văn A</td>
+                        <td><span class="tag" style="background:#f39c12">Farmer</span></td>
+                        <td>15/02/2026</td>
+                        <td><button class="btn-sm btn-off">Khóa</button></td>
+                    </tr>
+                </tbody>
+            </table>
+        </main>
+    </div>
+
+    <script src="../assets/js/api.js"></script>
+    <script src="../assets/js/main.js"></script>
+</body>
+</html>

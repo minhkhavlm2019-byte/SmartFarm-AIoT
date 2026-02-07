@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard - Smart Farm</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="wrapper">
+        <nav class="sidebar">
+            <div class="logo"><h3>🌱 Smart Farm</h3></div>
+            <ul>
+                <li onclick="location.href='dashboard.html'"><i class="fas fa-home"></i> Trang Chủ</li>
+                <li onclick="location.href='pages/zones.html'"><i class="fas fa-layer-group"></i> Quản lý Zone</li>
+                <li onclick="location.href='pages/devices.html'"><i class="fas fa-microchip"></i> Thiết bị IoT</li>
+                <li onclick="location.href='pages/users.html'"><i class="fas fa-users"></i> Người dùng</li>
+                <li onclick="logout()" class="logout"><i class="fas fa-sign-out-alt"></i> Đăng xuất</li>
+            </ul>
+        </nav>
+
+        <main class="content">
+            <header>
+                <h2>Tổng quan Hệ thống</h2>
+                <div class="user-info">Xin chào, <span id="display-name">Admin</span></div>
+            </header>
+
+            <div class="cards">
+                <div class="card">
+                    <i class="fas fa-temperature-high" style="color: #e74c3c; font-size: 24px;"></i>
+                    <h3>Nhiệt độ TB</h3>
+                    <p class="value" id="avg-temp">--°C</p>
+                </div>
+                <div class="card">
+                    <i class="fas fa-tint" style="color: #3498db; font-size: 24px;"></i>
+                    <h3>Độ ẩm TB</h3>
+                    <p class="value" id="avg-hum">--%</p>
+                </div>
+                <div class="card">
+                    <i class="fas fa-server" style="color: #2ecc71; font-size: 24px;"></i>
+                    <h3>Thiết bị Online</h3>
+                    <p class="value" id="online-count">--</p>
+                </div>
+            </div>
+
+            <div class="chart-container" style="background: white; padding: 20px; border-radius: 8px; margin-top: 20px;">
+                <h3><i class="fas fa-chart-line"></i> Biểu đồ Môi trường (Real-time)</h3>
+                <select id="deviceSelect" onchange="loadChart()" style="margin-bottom: 10px; padding: 5px;">
+                    <option value="">-- Chọn thiết bị --</option>
+                </select>
+                <canvas id="mainChart" width="100%" height="40"></canvas>
+            </div>
+        </main>
+    </div>
+
+    <script src="assets/js/api.js"></script>
+    <script src="assets/js/main.js"></script>
+    <script>
+        let myChart = null;
+
+        // Load danh sách thiết bị vào Select Box
+        async function initDashboard() {
+            const devices = await fetchAPI('/devices/');
+            if(devices) {
+                // 1. Cập nhật thẻ thống kê (Demo đếm số lượng)
+                const onlineDevs = devices.filter(d => d.status === 'ONLINE').length;
+                document.getElementById('online-count').innerText = `${onlineDevs} / ${devices.length}`;
+                
+                // 2. Đổ vào Select Box
+                const select = document.getElementById('deviceSelect');
+                devices.forEach(d => {
+                    const opt = document.createElement('option');
+                    opt.value = d.device_id;
+                    opt.innerText = `${d.name} (${d.device_id})`;
+                    select.appendChild(opt);
+                });
+
+                // 3. Tự chọn thiết bị đầu tiên và vẽ
+                if(devices.length > 0) {
+                    select.value = devices[0].device_id;
+                    loadChart();
+                }
+            }
+        }
+
+        async function loadChart() {
+            const deviceId = document.getElementById('deviceSelect').value;
+            if(!deviceId) return;
+
+            // Gọi API lấy lịch sử
+            const history = await fetchAPI(`/devices/${deviceId}/history?limit=20`);
+            if(!history) return;
+
+            // Xử lý dữ liệu
+            const labels = history.map(h => new Date(h.timestamp).toLocaleTimeString()).reverse();
+            const tempData = history.map(h => h.temp).reverse();
+            const humData = history.map(h => h.hum_air).reverse();
+
+            // Cập nhật số liệu trung bình mới nhất
+            if(history.length > 0) {
+                document.getElementById('avg-temp').innerText = history[0].temp + "°C";
+                document.getElementById('avg-hum').innerText = history[0].hum_air + "%";
+            }
+
+            // Vẽ Chart
+            const ctx = document.getElementById('mainChart').getContext('2d');
+            
+            // Hủy chart cũ nếu có
+            if(myChart) myChart.destroy();
+
+            myChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Nhiệt độ (°C)',
+                            data: tempData,
+                            borderColor: '#e74c3c',
+                            backgroundColor: 'rgba(231, 76, 60, 0.2)',
+                            fill: true,
+                            tension: 0.3
+                        },
+                        {
+                            label: 'Độ ẩm (%)',
+                            data: humData,
+                            borderColor: '#3498db',
+                            backgroundColor: 'rgba(52, 152, 219, 0.2)',
+                            fill: true,
+                            tension: 0.3
+                        }
+                    ]
+                },
+                options: { responsive: true }
+            });
+        }
+
+        document.addEventListener("DOMContentLoaded", initDashboard);
+    </script>
+</body>
+</html>

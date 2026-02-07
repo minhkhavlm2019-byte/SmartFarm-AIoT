@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đăng Nhập - Smart Farm AIoT</title>
+    <link rel="stylesheet" href="assets/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-box">
+            <div class="login-header">
+                <i class="fas fa-leaf logo-icon"></i>
+                <h2>Smart Farm AIoT</h2>
+                <p>Hệ thống quản lý nông nghiệp thông minh</p>
+            </div>
+            
+            <form id="login-form">
+                <div class="input-group">
+                    <label><i class="fas fa-user"></i> Tên đăng nhập</label>
+                    <input type="text" id="username" placeholder="Nhập username" required>
+                </div>
+                
+                <div class="input-group">
+                    <label><i class="fas fa-lock"></i> Mật khẩu</label>
+                    <input type="password" id="password" placeholder="Nhập mật khẩu" required>
+                </div>
+
+                <p id="error-msg" class="error-text" style="display: none; color: red;">
+                    <i class="fas fa-exclamation-circle"></i> <span id="error-text-content">Lỗi đăng nhập</span>
+                </p>
+
+                <button type="submit" class="btn-login" id="btnLogin">
+                    <span id="btnText">Đăng Nhập</span>
+                </button>
+            </form>
+
+            <div class="login-footer">
+                <p>Đồ án tốt nghiệp 2026</p>
+            </div>
+        </div>
+    </div>
+
+    <script src="assets/js/api.js"></script>  <script src="assets/js/main.js"></script> </body>
+</html>

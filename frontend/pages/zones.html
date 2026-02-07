@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Quản lý Zone - Smart Farm</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="wrapper">
+        <nav class="sidebar">
+            <div class="logo"><h3>🌱 Smart Farm</h3></div>
+            <ul>
+                <li onclick="location.href='../dashboard.html'"><i class="fas fa-home"></i> Trang Chủ</li>
+                <li onclick="location.href='zones.html'"><i class="fas fa-layer-group"></i> Quản lý Zone</li>
+                <li onclick="location.href='devices.html'"><i class="fas fa-microchip"></i> Thiết bị IoT</li>
+                <li onclick="location.href='users.html'"><i class="fas fa-users"></i> Người dùng</li>
+                <li onclick="logout()" class="logout"><i class="fas fa-sign-out-alt"></i> Đăng xuất</li>
+            </ul>
+        </nav>
+
+        <main class="content">
+            <header>
+                <h2>Quản lý Khu vực (Zones)</h2>
+                <div class="user-info">Xin chào, <span id="display-name">Admin</span></div>
+            </header>
+
+            <div class="toolbar">
+                <button class="btn-login" style="width: auto; padding: 10px 20px;">
+                    <i class="fas fa-plus"></i> Thêm Khu vực mới
+                </button>
+            </div>
+
+            <div class="zone-list" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; margin-top: 20px;">
+                
+                <div class="card zone-card">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <h3>🌿 Vườn Xà Lách</h3>
+                        <span class="tag online">Hoạt động</span>
+                    </div>
+                    <hr style="margin: 10px 0; border: 0; border-top: 1px solid #eee;">
+                    <p><strong>Loại cây:</strong> Rau ăn lá</p>
+                    <p><strong>Số lượng thiết bị:</strong> 2</p>
+                    <div style="background: #f9f9f9; padding: 10px; border-radius: 5px; margin: 10px 0;">
+                        <p><i class="fas fa-thermometer-half"></i> Cảnh báo nhiệt: <strong>> 35°C</strong></p>
+                        <p><i class="fas fa-tint"></i> Tưới khi đất: <strong>< 40%</strong></p>
+                    </div>
+                    <button class="btn-sm btn-on" style="width: 100%">Cấu hình AI</button>
+                </div>
+
+                <div class="card zone-card">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <h3>🍅 Vườn Cà Chua</h3>
+                        <span class="tag offline">Bảo trì</span>
+                    </div>
+                    <hr style="margin: 10px 0; border: 0; border-top: 1px solid #eee;">
+                    <p><strong>Loại cây:</strong> Cây ăn quả</p>
+                    <p><strong>Số lượng thiết bị:</strong> 1</p>
+                    <div style="background: #f9f9f9; padding: 10px; border-radius: 5px; margin: 10px 0;">
+                        <p><i class="fas fa-thermometer-half"></i> Cảnh báo nhiệt: <strong>> 38°C</strong></p>
+                        <p><i class="fas fa-tint"></i> Tưới khi đất: <strong>< 30%</strong></p>
+                    </div>
+                    <button class="btn-sm btn-on" style="width: 100%">Cấu hình AI</button>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <script src="../assets/js/api.js"></script>
+    <script src="../assets/js/main.js"></script>
+</body>
+</html>

@@ -1,0 +1,3 @@
+*"Thưa thầy, Logic If phức tạp giống như việc dạy máy tính học vẹt (Rập khuôn theo quy tắc). Còn AI giống như dạy máy tính học hiểu (Nắm bắt quy luật).
+
+Trong môi trường thực tế nhiều biến động và nhiễu (như cảm biến sai số), logic If rất dễ bị 'lừa' bởi các con số nằm ngay sát ngưỡng (Edge cases). AI xử lý các vùng mờ (Fuzzy logic) tốt hơn và quan trọng nhất là khả năng mở rộng (Scalability) mà không cần viết lại hàng nghìn dòng lệnh."*

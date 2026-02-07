@@ -1,0 +1,23 @@
+# --- Python ---
+__pycache__/
+*.pyc
+venv/
+.venv/
+env/
+
+# --- Database (Không up dữ liệu thật lên mạng) ---
+*.db
+*.sqlite3
+smart_farm.db
+
+# --- Bảo mật (Không up mật khẩu/key) ---
+.env
+.env.local
+
+# --- PlatformIO (Firmware rác) ---
+.pio/
+.vscode/
+
+# --- Hệ thống ---
+.DS_Store
+Thumbs.db

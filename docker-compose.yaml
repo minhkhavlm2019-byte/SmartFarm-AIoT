@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  # 1. MQTT Broker - Trạm trung chuyển tin nhắn
+  mqtt:
+    image: eclipse-mosquitto:latest
+    container_name: agri_mqtt
+    ports:
+      - "1883:1883"      # Cổng cho thiết bị kết nối
+      - "9001:9001"      # Cổng Web socket
+    volumes:
+      - ./mosquitto/config/mosquitto.conf:/mosquitto/config/mosquitto.conf
+    restart: unless-stopped
+
+  # 2. PostgreSQL - Lưu dữ liệu người dùng, nông trại
+  postgres:
+    image: postgres:15-alpine
+    container_name: agri_postgres
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: password123  # Mật khẩu đơn giản để test
+      POSTGRES_DB: smart_agri_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+
+  # 3. InfluxDB - Lưu dữ liệu cảm biến theo thời gian
+  influxdb:
+    image: influxdb:2.7
+    container_name: agri_influxdb
+    ports:
+      - "8086:8086"      # Cổng giao diện Web quản lý
+    environment:
+      DOCKER_INFLUXDB_INIT_MODE: setup
+      DOCKER_INFLUXDB_INIT_USERNAME: admin
+      DOCKER_INFLUXDB_INIT_PASSWORD: password123456 # Mật khẩu phải >= 8 ký tự
+      DOCKER_INFLUXDB_INIT_ORG: my-org
+      DOCKER_INFLUXDB_INIT_BUCKET: farm_metrics
+    volumes:
+      - influxdb_data:/var/lib/influxdb2
+    restart: unless-stopped
+
+# Khai báo nơi lưu dữ liệu bền vững (để tắt Docker không bị mất dữ liệu)
+volumes:
+  postgres_data:
+  influxdb_data:
