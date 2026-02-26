@@ -2,6 +2,12 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from core.config import settings
 
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
 # In ra để kiểm tra xem nó đang lấy URL nào (Debug)
 print(f"Connecting to Database: {settings.DATABASE_URL}")
 

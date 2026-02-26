@@ -1,0 +1,4 @@
+2026-02-24 21:07:46,475 - AI_Irrigation - INFO - 🤖 Logic Tự động: Đã nạp thành công bộ não AI!
+2026-02-24 21:08:30,070 - AI_Irrigation - INFO - 🤖 Logic Tự động: Đã nạp thành công bộ não AI!
+2026-02-24 21:08:30,390 - AI_Irrigation - INFO - 🌱 Khởi động tiến trình AI Giám sát, Xử lý sự cố và Ghi Log...
+2026-02-24 21:19:15,031 - crud.device - INFO - ACTION TRIGGERED: ESP32_WOKWI_01 -> PUMP_ON | By: MANUAL | Reason: Điều khiển tay bởi UserRole.FARMER: tech

@@ -1,0 +1,19 @@
+2026-02-23 12:59:27,536 - AI_Irrigation - INFO - 🤖 Logic Tự động: Đã nạp thành công bộ não AI!
+2026-02-23 13:00:09,932 - AI_Irrigation - INFO - 🤖 Logic Tự động: Đã nạp thành công bộ não AI!
+2026-02-23 13:00:10,119 - AI_Irrigation - INFO - 🌱 Khởi động tiến trình AI Giám sát, Xử lý sự cố và Ghi Log...
+2026-02-23 13:02:45,897 - crud.device - INFO - ACTION TRIGGERED: ESP32_WOKWI_01 -> PUMP_ON | By: MANUAL | Reason: Điều khiển tay bởi UserRole.FARMER: tech
+2026-02-23 13:29:55,657 - AI_Irrigation - INFO - 🤖 Logic Tự động: Đã nạp thành công bộ não AI!
+2026-02-23 13:30:37,972 - AI_Irrigation - INFO - 🤖 Logic Tự động: Đã nạp thành công bộ não AI!
+2026-02-23 13:30:38,161 - AI_Irrigation - INFO - 🌱 Khởi động tiến trình AI Giám sát, Xử lý sự cố và Ghi Log...
+2026-02-23 13:36:57,753 - AI_Irrigation - INFO - 🤖 Logic Tự động: Đã nạp thành công bộ não AI!
+2026-02-23 13:36:57,923 - AI_Irrigation - INFO - 🌱 Khởi động tiến trình AI Giám sát, Xử lý sự cố và Ghi Log...
+2026-02-23 13:38:10,537 - AI_Irrigation - INFO - 🤖 Logic Tự động: Đã nạp thành công bộ não AI!
+2026-02-23 13:38:10,734 - AI_Irrigation - INFO - 🌱 Khởi động tiến trình AI Giám sát, Xử lý sự cố và Ghi Log...
+2026-02-23 13:39:10,763 - AI_Irrigation - WARNING - 📝 [Log DB]: Ghi nhận bật Phun sương tại Vườn xà lách
+2026-02-23 13:39:10,764 - AI_Irrigation - WARNING - ⚠️ [Vườn Vườn xà lách]: Bắt đầu Sốc nhiệt (38.40000153°C). Gửi mail Cảnh báo.
+2026-02-23 13:59:18,433 - AI_Irrigation - INFO - 🤖 Logic Tự động: Đã nạp thành công bộ não AI!
+2026-02-23 13:59:18,782 - AI_Irrigation - INFO - 🌱 Khởi động tiến trình AI Giám sát, Xử lý sự cố và Ghi Log...
+2026-02-23 14:00:39,425 - AI_Irrigation - INFO - 🤖 Logic Tự động: Đã nạp thành công bộ não AI!
+2026-02-23 14:00:39,660 - AI_Irrigation - INFO - 🌱 Khởi động tiến trình AI Giám sát, Xử lý sự cố và Ghi Log...
+2026-02-23 14:21:39,878 - AI_Irrigation - WARNING - 📝 [Log DB]: Ghi nhận bật Phun sương tại Vườn xà lách
+2026-02-23 14:21:39,878 - AI_Irrigation - WARNING - ⚠️ [Vườn Vườn xà lách]: Bắt đầu Sốc nhiệt (38.40000153°C). Gửi mail Cảnh báo.

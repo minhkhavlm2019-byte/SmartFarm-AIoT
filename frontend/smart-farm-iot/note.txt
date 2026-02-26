@@ -1,0 +1,14 @@
+# models.py
+class Zone(Base):
+    __tablename__ = "zones"
+    id = Column(Integer, primary_key=True)
+    name = Column(String)
+    location = Column(String)
+    
+    # 👇 THÊM 2 DÒNG NÀY: Ai chịu trách nhiệm?
+    technician_id = Column(Integer, ForeignKey('users.user_id'), nullable=True)
+    farmer_id = Column(Integer, ForeignKey('users.user_id'), nullable=True)
+    
+    # Quan hệ
+    technician = relationship("User", foreign_keys=[technician_id])
+    farmer = relationship("User", foreign_keys=[farmer_id])

@@ -1,0 +1,5 @@
+[wokwi]
+version = 1
+# Đường dẫn tương đối từ thư mục gốc đến file firmware của Gateway
+firmware = "Gateway_Node/.pio/build/esp32doit-devkit-v1/firmware.bin"
+elf = "Gateway_Node/.pio/build/esp32doit-devkit-v1/firmware.elf"

@@ -1,0 +1,107 @@
+{
+  "version": 1,
+  "author": "SmartAgri Student",
+  "editor": "wokwi",
+  "parts": [
+    { "type": "board-esp32-devkit-c-v4", "id": "esp", "top": 76.8, "left": -14.36, "attrs": {} },
+    {
+      "type": "wokwi-lcd2004",
+      "id": "lcd1",
+      "top": -166.4,
+      "left": 447.2,
+      "attrs": { "pins": "i2c" }
+    },
+    { "type": "wokwi-dht22", "id": "dht1", "top": -114.9, "left": -120.6, "attrs": {} },
+    {
+      "type": "wokwi-photoresistor-sensor",
+      "id": "ldr1",
+      "top": 99.2,
+      "left": -584.8,
+      "attrs": {}
+    },
+    {
+      "type": "wokwi-potentiometer",
+      "id": "pot1",
+      "top": -97.3,
+      "left": -269,
+      "attrs": { "label": "Soil Moisture" }
+    },
+    {
+      "type": "wokwi-led",
+      "id": "led_pump",
+      "top": 50,
+      "left": 350,
+      "attrs": { "color": "yellow", "label": "PUMP" }
+    },
+    {
+      "type": "wokwi-led",
+      "id": "led_mist",
+      "top": 130,
+      "left": 350,
+      "attrs": { "color": "blue", "label": "MIST" }
+    },
+    {
+      "type": "wokwi-led",
+      "id": "led_light",
+      "top": 210,
+      "left": 350,
+      "attrs": { "color": "purple", "label": "LIGHT" }
+    },
+    {
+      "type": "wokwi-resistor",
+      "id": "r1",
+      "top": 90.35,
+      "left": 249.6,
+      "attrs": { "value": "220" }
+    },
+    { "type": "wokwi-resistor", "id": "r2", "top": 170, "left": 250, "attrs": { "value": "220" } },
+    { "type": "wokwi-resistor", "id": "r3", "top": 250, "left": 250, "attrs": { "value": "220" } },
+    { "type": "wokwi-vcc", "id": "vcc1", "top": -268.04, "left": -537.6, "attrs": {} },
+    { "type": "wokwi-gnd", "id": "gnd1", "top": -192, "left": -538.2, "attrs": {} },
+    { "type": "wokwi-potentiometer", "id": "pot2", "top": 382.7, "left": -269, "attrs": {} },
+    { "type": "wokwi-potentiometer", "id": "pot3", "top": 382.7, "left": 38.2, "attrs": {} },
+    { "type": "wokwi-potentiometer", "id": "pot4", "top": -97.3, "left": 38.2, "attrs": {} },
+    { "type": "wokwi-dht22", "id": "dht2", "top": 374.7, "left": -120.6, "attrs": {} },
+    { "type": "wokwi-vcc", "id": "vcc2", "top": 480.76, "left": -547.2, "attrs": {} },
+    { "type": "wokwi-gnd", "id": "gnd2", "top": 537.6, "left": -547.8, "attrs": {} }
+  ],
+  "connections": [
+    [ "esp:TX", "$serialMonitor:RX", "", [] ],
+    [ "esp:RX", "$serialMonitor:TX", "", [] ],
+    [ "lcd1:SDA", "esp:21", "green", [ "h-20", "v40" ] ],
+    [ "lcd1:SCL", "esp:22", "green", [ "h-30", "v50" ] ],
+    [ "lcd1:VCC", "vcc1:VCC", "red", [ "v0.1", "h-96", "v-115.2" ] ],
+    [ "lcd1:GND", "gnd1:GND", "black", [ "h-86.4", "v-67.2", "h-892.8" ] ],
+    [ "dht1:VCC", "vcc1:VCC", "red", [ "h-38.4", "v-240" ] ],
+    [ "dht1:GND", "gnd1:GND", "black", [ "h38.4", "v-201.6", "h-489.6" ] ],
+    [ "dht1:SDA", "esp:25", "blue", [ "h0.1", "v182.4" ] ],
+    [ "ldr1:VCC", "vcc1:VCC", "red", [ "v-163.2", "h-115.2" ] ],
+    [ "ldr1:GND", "gnd1:GND", "black", [ "h38.4", "v-307.6", "h-9.6", "v-19.2", "h-144" ] ],
+    [ "ldr1:AO", "esp:33", "orange", [ "h50", "v50" ] ],
+    [ "pot1:VCC", "vcc1:VCC", "red", [ "v28.8", "h47.2", "v-240" ] ],
+    [ "pot1:GND", "gnd1:GND", "black", [ "v28.8", "h-57.6", "v-201.6", "h-230.4" ] ],
+    [ "pot1:SIG", "esp:32", "brown", [ "h-0.4", "v192" ] ],
+    [ "esp:18", "r1:1", "gold", [ "h20", "v-20" ] ],
+    [ "r1:2", "led_pump:A", "gold", [ "h20" ] ],
+    [ "led_pump:C", "gnd1:GND", "black", [ "v20", "h-150", "v-313.6", "h-551" ] ],
+    [ "esp:5", "r2:1", "blue", [ "h48", "v-16.35" ] ],
+    [ "r2:2", "led_mist:A", "blue", [ "h20" ] ],
+    [ "led_mist:C", "gnd1:GND", "black", [ "v20", "h-160", "v-393.6", "h-541" ] ],
+    [ "esp:17", "r3:1", "purple", [ "h50", "v120" ] ],
+    [ "r3:2", "led_light:A", "purple", [ "h20" ] ],
+    [ "led_light:C", "gnd1:GND", "black", [ "v20", "h-170", "v-473.6", "h-531" ] ],
+    [ "pot4:GND", "gnd1:GND", "black", [ "v28.8", "h-48", "v-201.6", "h-547.2" ] ],
+    [ "vcc1:VCC", "pot4:VCC", "red", [ "v0", "h672", "v240", "h-9.6" ] ],
+    [ "esp:35", "pot4:SIG", "green", [ "h-28.65", "v-96", "h105.6", "v0", "h9.6" ] ],
+    [ "vcc2:VCC", "pot3:VCC", "red", [ "v9.6", "h624", "v-38.4" ] ],
+    [ "vcc2:VCC", "pot2:VCC", "red", [ "v9.6", "h326.4" ] ],
+    [ "dht2:GND", "gnd2:GND", "black", [ "v67.2" ] ],
+    [ "pot3:GND", "gnd2:GND", "black", [ "v86.4" ] ],
+    [ "pot2:GND", "gnd2:GND", "black", [ "v86.4", "h-28.8" ] ],
+    [ "dht2:VCC", "vcc2:VCC", "red", [ "v28.8", "h-432" ] ],
+    [ "pot2:SIG", "esp:26", "green", [ "v28.8", "h47.6", "v-288", "h28.8" ] ],
+    [ "dht2:SDA", "esp:27", "green", [ "v19.2", "h-28.7", "v-297.6", "h0", "v-9.6" ] ],
+    [ "pot3:SIG", "esp:14", "green", [ "v57.6", "h-125.2", "v-9.6" ] ]
+  ],
+  "dependencies": {}
+}

@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Quản lý Người dùng - Smart Farm</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        /* CSS riêng cho trang Users */
+        .btn-add-user {
+            background: #27ae60;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-bottom: 20px;
+        }
+        .btn-add-user:hover { background: #219150; }
+        .role-badge { padding: 5px 10px; border-radius: 15px; font-size: 12px; font-weight: bold; color: white; }
+        .role-admin { background: #e74c3c; }
+        .role-farmer { background: #f39c12; }
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        <nav class="sidebar">
+            <div class="logo"><h3>🌱 Smart Farm</h3></div>
+            <ul>
+                <li onclick="location.href='../dashboard.html'"><i class="fas fa-home"></i> Trang Chủ</li>
+                <li onclick="location.href='zones.html'"><i class="fas fa-layer-group"></i> Quản lý Zone</li>
+                <li onclick="location.href='devices.html'"><i class="fas fa-microchip"></i> Thiết bị IoT</li>
+                <li class="active" onclick="location.href='users.html'"><i class="fas fa-users"></i> Người dùng</li>
+                <li onclick="logout()" class="logout"><i class="fas fa-sign-out-alt"></i> Đăng xuất</li>
+            </ul>
+        </nav>
+
+        <main class="content">
+            <header>
+                <h2>Quản lý Người dùng</h2>
+                <div class="user-info">Xin chào, <span id="display-name">Admin</span></div>
+            </header>
+
+            <section class="tab-content" style="display: block;">
+                <button onclick="document.getElementById('addUserModal').style.display='block'" class="btn-add-user">
+                    <i class="fas fa-user-plus"></i> Thêm Người Dùng
+                </button>
+
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Tên đăng nhập</th>
+                            <th>Họ và Tên</th>
+                            <th>Email</th>
+                            <th>Quyền hạn</th>
+                            <th>Ngày tạo</th>
+                            </tr>
+                    </thead>
+                    <tbody id="user-table-body">
+                        <tr><td colspan="7">Đang tải dữ liệu...</td></tr>
+                    </tbody>
+                </table>
+            </section>
+        </main>
+    </div>
+
+    <div id="addUserModal" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:white; padding:20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.5); z-index: 1000; width: 350px;">
+        <h3 style="margin-top:0; color:#27ae60;">Tạo Tài Khoản Mới</h3>
+        
+        <label>Tên đăng nhập:</label>
+        <input type="text" id="new_username" style="width:100%; padding:8px; margin:5px 0 10px;">
+        
+        <label>Mật khẩu:</label>
+        <input type="password" id="new_password" style="width:100%; padding:8px; margin:5px 0 10px;">
+        
+        <label>Họ và Tên:</label>
+        <input type="text" id="new_fullname" style="width:100%; padding:8px; margin:5px 0 10px;">
+
+        <label>Quyền hạn:</label>
+        <select id="new_role" style="width:100%; padding:8px; margin:5px 0 10px;">
+            <option value="farmer">Nông dân (Farmer)</option>
+            <option value="admin">Quản trị viên (Admin)</option>
+        </select>
+        
+        <div style="text-align: right; margin-top: 15px;">
+            <button onclick="document.getElementById('addUserModal').style.display='none'" class="btn-off">Hủy</button>
+            <button onclick="submitNewUser()" class="btn-on">Tạo Mới</button>
+        </div>
+    </div>
+
+    <script src="../assets/js/api.js"></script>
+    <script src="../assets/js/main.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            loadUsers();
+        });
+
+        async function loadUsers() {
+            const tbody = document.getElementById('user-table-body');
+            
+            // --- 1. KIỂM TRA QUYỀN (QUAN TRỌNG) ---
+            // Lấy role từ LocalStorage (VD: "ADMIN")
+            const rawRole = localStorage.getItem('user_role');
+            
+            // Chuyển hết về chữ thường để so sánh (VD: "ADMIN" -> "admin")
+            const role = (rawRole || "").toLowerCase(); 
+
+            // So sánh: Nếu không phải 'admin' thì chặn
+            if (role !== 'admin') {
+                tbody.innerHTML = '<tr><td colspan="7" style="color:red; text-align:center; padding: 20px;">🚫 Bạn không có quyền truy cập trang này (Chỉ dành cho Admin).</td></tr>';
+                
+                // Ẩn nút thêm người dùng
+                const btnAdd = document.querySelector('.btn-add-user');
+                if (btnAdd) btnAdd.style.display = 'none'; 
+                return;
+            }
+
+            // --- 2. TẢI DANH SÁCH ---
+            try {
+                const users = await fetchAPI('/users/');
+
+                if (users && users.length > 0) {
+                    tbody.innerHTML = '';
+                    users.forEach(u => {
+                        // Chuẩn hóa role của từng user trong danh sách để hiển thị màu
+                        // u.role từ DB trả về là "ADMIN" hoặc "FARMER"
+                        const userRole = (u.role || "").toLowerCase(); 
+                        
+                        // Nếu là admin thì class màu đỏ, farmer màu vàng
+                        const roleClass = userRole === 'admin' ? 'role-admin' : 'role-farmer';
+                        
+                        // Format ngày tháng
+                        const dateStr = u.created_at ? new Date(u.created_at).toLocaleDateString('vi-VN') : '---';
+                        
+                        const row = `
+                            <tr>
+                                <td>${u.user_id}</td>
+                                <td><strong>${u.username}</strong></td>
+                                <td>${u.full_name || '---'}</td>
+                                <td>${u.email || '---'}</td>
+                                <td><span class="role-badge ${roleClass}">${userRole.toUpperCase()}</span></td>
+                                <td>${dateStr}</td>
+                            </tr>
+                        `;
+                        tbody.innerHTML += row;
+                    });
+                } else {
+                    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">Chưa có dữ liệu.</td></tr>';
+                }
+            } catch (e) {
+                console.error(e);
+                tbody.innerHTML = `<tr><td colspan="7" style="color:red; text-align:center;">Lỗi tải dữ liệu: ${e.message}</td></tr>`;
+            }
+        }
+
+        async function submitNewUser() {
+            const username = document.getElementById('new_username').value;
+            const password = document.getElementById('new_password').value;
+            const fullname = document.getElementById('new_fullname').value;
+            
+            // Lấy value từ select (VD: "ADMIN" hoặc "FARMER")
+            const role = document.getElementById('new_role').value;
+
+            if(!username || !password) return alert("Vui lòng nhập đầy đủ thông tin!");
+
+            const payload = {
+                username: username,
+                password: password,
+                full_name: fullname,
+                role: role // Gửi đúng chuỗi "ADMIN" hoặc "FARMER" lên Server
+            };
+
+            const res = await fetchAPI('/users/register', 'POST', payload);
+            
+            if(res) {
+                alert("Tạo tài khoản thành công!");
+                document.getElementById('addUserModal').style.display = 'none';
+                loadUsers();
+            }
+        }
+    </script>
+</body>
+</html>
+<!-- <!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Người dùng - Smart Farm</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="wrapper">
+        <nav class="sidebar">
+            <div class="logo"><h3>🌱 Smart Farm</h3></div>
+            <ul>
+                <li onclick="location.href='../dashboard.html'"><i class="fas fa-home"></i> Trang Chủ</li>
+                <li onclick="location.href='zones.html'"><i class="fas fa-layer-group"></i> Quản lý Zone</li>
+                <li onclick="location.href='devices.html'"><i class="fas fa-microchip"></i> Thiết bị IoT</li>
+                <li onclick="location.href='users.html'"><i class="fas fa-users"></i> Người dùng</li>
+                <li onclick="logout()" class="logout"><i class="fas fa-sign-out-alt"></i> Đăng xuất</li>
+            </ul>
+        </nav>
+
+        <main class="content">
+            <header>
+                <h2>Quản lý Người dùng</h2>
+                <div class="user-info">Xin chào, <span id="display-name">Admin</span></div>
+            </header>
+
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Tên đăng nhập</th>
+                        <th>Họ và Tên</th>
+                        <th>Quyền hạn</th>
+                        <th>Ngày tạo</th>
+                        <th>Thao tác</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>admin</td>
+                        <td>Super Admin</td>
+                        <td><span class="tag online">Admin</span></td>
+                        <td>01/01/2026</td>
+                        <td><button class="btn-sm btn-off" disabled>Khóa</button></td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>farmer_a</td>
+                        <td>Nguyễn Văn A</td>
+                        <td><span class="tag" style="background:#f39c12">Farmer</span></td>
+                        <td>15/02/2026</td>
+                        <td><button class="btn-sm btn-off">Khóa</button></td>
+                    </tr>
+                </tbody>
+            </table>
+        </main>
+    </div>
+
+    <script src="../assets/js/api.js"></script>
+    <script src="../assets/js/main.js"></script>
+</body>
+</html> -->

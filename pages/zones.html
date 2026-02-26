@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Quản lý Khu Vực (Zones)</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        .zone-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; margin-top: 20px; }
+        .zone-card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); position: relative; border-left: 5px solid #27ae60; }
+        .zone-card h3 { color: #2c3e50; margin-bottom: 5px; }
+        .zone-card .meta { font-size: 13px; color: #7f8c8d; margin-bottom: 15px; }
+        .btn-group { display: flex; gap: 10px; margin-top: 15px; }
+        .device-list-item { display: flex; justify-content: space-between; align-items: center; padding: 8px; border-bottom: 1px solid #eee; }
+        /* Modal Tabs */
+        .modal-tabs { display: flex; border-bottom: 1px solid #ccc; margin-bottom: 15px; }
+        .tab-btn { padding: 10px 20px; border: none; background: none; cursor: pointer; font-weight: bold; color: #7f8c8d; }
+        .tab-btn.active { color: #27ae60; border-bottom: 2px solid #27ae60; }
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        <nav class="sidebar">
+            <div class="logo"><h3>🌱 Smart Farm</h3></div>
+            <ul>
+                <li onclick="location.href='../dashboard.html'"><i class="fas fa-home"></i> Trang Chủ</li>
+                <li class="active" onclick="location.href='zones.html'"><i class="fas fa-layer-group"></i> Quản lý Zone</li>
+                <li onclick="location.href='devices.html'"><i class="fas fa-microchip"></i> Thiết bị IoT</li>
+            </ul>
+        </nav>
+
+        <main class="content">
+            <header><h2>Khu Vực Canh Tác</h2></header>
+            <section class="tab-content" style="display: block;">
+                <button onclick="document.getElementById('addZoneModal').style.display='block'" class="admin-only" class="btn-on">
+                    <i class="fas fa-plus"></i> Tạo Khu Vực Mới
+                </button>
+                <div id="zone-list" class="zone-grid"><p>Đang tải dữ liệu...</p></div>
+            </section>
+        </main>
+    </div>
+
+    <div id="addZoneModal" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:white; padding:20px; border-radius: 8px; box-shadow: 0 0 10px rgba(0,0,0,0.5); z-index: 1000; width: 300px;">
+        <h3>Tạo Khu Vực Mới</h3>
+        <input type="text" id="new_zone_name" placeholder="Tên Khu Vực" style="display:block; margin:10px 0; width: 100%; padding: 8px;">
+        <input type="text" id="new_zone_desc" placeholder="Mô tả" style="display:block; margin:10px 0; width: 100%; padding: 8px;">
+        <input type="text" id="new_zone_crop" value="Rau Cải" style="display:block; margin:10px 0; width: 100%; padding: 8px;">
+        <div style="text-align: right;">
+            <button onclick="document.getElementById('addZoneModal').style.display='none'" class="btn-off">Hủy</button>
+            <button onclick="submitNewZone()" class="btn-on">Lưu</button>
+        </div>
+    </div>
+
+    <div id="editZoneModal" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:white; padding:20px; border-radius: 8px; box-shadow: 0 0 20px rgba(0,0,0,0.5); z-index: 1000; width: 400px;">
+        <h3 id="edit_modal_title">Quản lý Zone</h3>
+        
+        <div class="modal-tabs">
+            <button class="tab-btn active" onclick="switchTab('info')">Thông tin</button>
+            <button class="tab-btn" onclick="switchTab('devices')">Thiết bị</button>
+        </div>
+
+        <div id="tab-info">
+            <input type="hidden" id="edit_zone_id">
+            <label>Tên Zone:</label>
+            <input type="text" id="edit_zone_name" style="width: 100%; padding: 8px; margin-bottom: 10px;">
+            <label>Loại cây:</label>
+            <input type="text" id="edit_zone_crop" style="width: 100%; padding: 8px; margin-bottom: 10px;">
+            <label>Mô tả:</label>
+            <input type="text" id="edit_zone_desc" style="width: 100%; padding: 8px; margin-bottom: 10px;">
+            <div style="text-align: right; margin-top: 10px;">
+                <button onclick="closeEditModal()" class="btn-off">Đóng</button>
+                <button onclick="submitUpdateZone()" class="btn-on">Cập nhật</button>
+            </div>
+        </div>
+
+        <div id="tab-devices" style="display:none;">
+            <div style="margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px dashed #ccc;">
+                <label><b>Thêm thiết bị vào Zone này:</b></label>
+                <div style="display: flex; gap: 5px; margin-top: 5px;">
+                    <select id="select_free_device" style="flex: 1; padding: 5px;">
+                        <option>Đang tải...</option>
+                    </select>
+                    <button onclick="addDeviceToZone()" class="btn-sm btn-on"><i class="fas fa-plus"></i></button>
+                </div>
+            </div>
+            
+            <label><b>Thiết bị đang có:</b></label>
+            <div id="zone_device_list" style="max-height: 150px; overflow-y: auto; margin-top: 5px;">
+                </div>
+            <div style="text-align: right; margin-top: 15px;">
+                <button onclick="closeEditModal()" class="btn-off">Đóng</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../assets/js/api.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", loadZones);
+
+        // --- 1. TẢI DANH SÁCH ZONE ---
+        async function loadZones() {
+            const container = document.getElementById('zone-list');
+            const zones = await fetchAPI('/zones/');
+            
+            // Lấy thêm danh sách thiết bị để đếm số lượng (Option)
+            const devices = await fetchAPI('/devices/'); 
+
+            if (zones && zones.length > 0) {
+                container.innerHTML = '';
+                zones.forEach(zone => {
+                    // Đếm số thiết bị trong zone này
+                    const count = devices ? devices.filter(d => d.zone_id === zone.zone_id).length : 0;
+                    
+                    const card = `
+                        <div class="zone-card">
+                            <h3><i class="fas fa-seedling"></i> ${zone.name}</h3>
+                            <div class="meta">...</div>
+                            <p>${zone.description || 'Chưa có mô tả'}</p>
+                            
+                            <div class="btn-group">
+                                <button onclick="openEditModal(${zone.zone_id}, ...)" class="btn-sm" style="...">
+                                    <i class="fas fa-edit"></i> Quản lý
+                                </button>
+                                <button onclick="deleteZone(${zone.zone_id})" class="btn-sm admin-only" style="background:#e74c3c; color:white; border:none; width:40px; cursor:pointer;">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                    container.innerHTML += card;
+                });
+            } else {
+                container.innerHTML = '<p>Chưa có khu vực nào.</p>';
+            }
+        }
+
+        // --- 2. XỬ LÝ MODAL EDIT ---
+        let currentZoneId = null;
+
+        function openEditModal(id, name, crop, desc) {
+            currentZoneId = id;
+            document.getElementById('edit_zone_id').value = id;
+            document.getElementById('edit_zone_name').value = name;
+            document.getElementById('edit_zone_crop').value = crop;
+            document.getElementById('edit_zone_desc').value = (desc && desc !== 'null') ? desc : '';
+            document.getElementById('edit_modal_title').innerText = "Quản lý: " + name;
+            
+            // Mở modal và reset về tab info
+            document.getElementById('editZoneModal').style.display = 'block';
+            switchTab('info');
+            
+            // Load danh sách thiết bị
+            loadZoneDevices(id);
+        }
+
+        function closeEditModal() {
+            document.getElementById('editZoneModal').style.display = 'none';
+        }
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('#tab-info, #tab-devices').forEach(d => d.style.display = 'none');
+            
+            if(tabName === 'info') {
+                document.getElementById('tab-info').style.display = 'block';
+                document.querySelector('button[onclick="switchTab(\'info\')"]').classList.add('active');
+            } else {
+                document.getElementById('tab-devices').style.display = 'block';
+                document.querySelector('button[onclick="switchTab(\'devices\')"]').classList.add('active');
+            }
+        }
+
+        // --- 3. CẬP NHẬT THÔNG TIN ZONE ---
+        async function submitUpdateZone() {
+            const name = document.getElementById('edit_zone_name').value;
+            const crop = document.getElementById('edit_zone_crop').value;
+            const desc = document.getElementById('edit_zone_desc').value;
+
+            const payload = { name: name, crop_type: crop, description: desc };
+            const res = await fetchAPI(`/zones/${currentZoneId}`, 'PUT', payload);
+            
+            if(res) {
+                alert("Cập nhật thành công!");
+                closeEditModal();
+                loadZones();
+            }
+        }
+
+        // --- 4. QUẢN LÝ THIẾT BỊ TRONG ZONE ---
+        async function loadZoneDevices(zoneId) {
+            const allDevices = await fetchAPI('/devices/');
+            const zoneListDiv = document.getElementById('zone_device_list');
+            const freeSelect = document.getElementById('select_free_device');
+            
+            zoneListDiv.innerHTML = '';
+            freeSelect.innerHTML = '<option value="">-- Chọn thiết bị để thêm --</option>';
+            
+            if(allDevices) {
+                allDevices.forEach(dev => {
+                    // Nếu thiết bị thuộc zone này -> Hiển thị trong danh sách
+                    if (dev.zone_id === zoneId) {
+                        const item = `
+                            <div class="device-list-item">
+                                <span><b>${dev.device_id}</b> (${dev.name})</span>
+                                <button onclick="removeDeviceFromZone('${dev.device_id}')" style="color:red; background:none; border:none; cursor:pointer;">
+                                    <i class="fas fa-times-circle"></i> Bỏ
+                                </button>
+                            </div>
+                        `;
+                        zoneListDiv.innerHTML += item;
+                    } 
+                    // Nếu thiết bị chưa có zone (zone_id null) -> Thêm vào dropdown
+                    else if (!dev.zone_id) {
+                        const opt = document.createElement('option');
+                        opt.value = dev.device_id;
+                        opt.innerText = `${dev.device_id} - ${dev.name}`;
+                        freeSelect.appendChild(opt);
+                    }
+                });
+            }
+            
+            if(zoneListDiv.innerHTML === '') zoneListDiv.innerHTML = '<p style="color:#999; font-size:13px;">Chưa có thiết bị nào.</p>';
+        }
+
+        // Thêm thiết bị vào Zone
+        async function addDeviceToZone() {
+            const deviceId = document.getElementById('select_free_device').value;
+            if(!deviceId) return alert("Vui lòng chọn thiết bị!");
+            
+            // Gọi API cập nhật thiết bị: Gán zone_id = currentZoneId
+            await fetchAPI(`/devices/${deviceId}`, 'PUT', { zone_id: currentZoneId });
+            loadZoneDevices(currentZoneId); // Load lại danh sách trong modal
+            loadZones(); // Load lại danh sách ngoài dashboard để cập nhật số lượng
+        }
+
+        // Xóa thiết bị khỏi Zone (Gán zone_id = null)
+        async function removeDeviceFromZone(deviceId) {
+            if(confirm("Gỡ thiết bị này khỏi khu vực?")) {
+                await fetchAPI(`/devices/${deviceId}`, 'PUT', { zone_id: null });
+                loadZoneDevices(currentZoneId);
+                loadZones();
+            }
+        }
+
+        // --- 5. TẠO ZONE MỚI ---
+        async function submitNewZone() {
+            const name = document.getElementById('new_zone_name').value;
+            const desc = document.getElementById('new_zone_desc').value;
+            const crop = document.getElementById('new_zone_crop').value;
+            if(!name) return alert("Nhập tên Zone!");
+            
+            await fetchAPI('/zones/', 'POST', { name: name, description: desc, crop_type: crop });
+            document.getElementById('addZoneModal').style.display = 'none';
+            loadZones();
+        }
+
+        async function deleteZone(id) {
+            if(confirm("Xóa khu vực này? Các thiết bị sẽ bị gỡ bỏ.")) {
+                await fetchAPI(`/zones/${id}`, 'DELETE');
+                loadZones();
+            }
+        }
+    </script>
+</body>
+</html>
+<!-- <!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Quản lý Zone - Smart Farm</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="wrapper">
+        <nav class="sidebar">
+            <div class="logo"><h3>🌱 Smart Farm</h3></div>
+            <ul>
+                <li onclick="location.href='../dashboard.html'"><i class="fas fa-home"></i> Trang Chủ</li>
+                <li onclick="location.href='zones.html'"><i class="fas fa-layer-group"></i> Quản lý Zone</li>
+                <li onclick="location.href='devices.html'"><i class="fas fa-microchip"></i> Thiết bị IoT</li>
+                <li onclick="location.href='users.html'"><i class="fas fa-users"></i> Người dùng</li>
+                <li onclick="logout()" class="logout"><i class="fas fa-sign-out-alt"></i> Đăng xuất</li>
+            </ul>
+        </nav>
+
+        <main class="content">
+            <header>
+                <h2>Quản lý Khu vực (Zones)</h2>
+                <div class="user-info">Xin chào, <span id="display-name">Admin</span></div>
+            </header>
+
+            <div class="toolbar">
+                <button class="btn-login" style="width: auto; padding: 10px 20px;">
+                    <i class="fas fa-plus"></i> Thêm Khu vực mới
+                </button>
+            </div>
+
+            <div class="zone-list" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; margin-top: 20px;">
+                
+                <div class="card zone-card">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <h3>🌿 Vườn Xà Lách</h3>
+                        <span class="tag online">Hoạt động</span>
+                    </div>
+                    <hr style="margin: 10px 0; border: 0; border-top: 1px solid #eee;">
+                    <p><strong>Loại cây:</strong> Rau ăn lá</p>
+                    <p><strong>Số lượng thiết bị:</strong> 2</p>
+                    <div style="background: #f9f9f9; padding: 10px; border-radius: 5px; margin: 10px 0;">
+                        <p><i class="fas fa-thermometer-half"></i> Cảnh báo nhiệt: <strong>> 35°C</strong></p>
+                        <p><i class="fas fa-tint"></i> Tưới khi đất: <strong>< 40%</strong></p>
+                    </div>
+                    <button class="btn-sm btn-on" style="width: 100%">Cấu hình AI</button>
+                </div>
+
+                <div class="card zone-card">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <h3>🍅 Vườn Cà Chua</h3>
+                        <span class="tag offline">Bảo trì</span>
+                    </div>
+                    <hr style="margin: 10px 0; border: 0; border-top: 1px solid #eee;">
+                    <p><strong>Loại cây:</strong> Cây ăn quả</p>
+                    <p><strong>Số lượng thiết bị:</strong> 1</p>
+                    <div style="background: #f9f9f9; padding: 10px; border-radius: 5px; margin: 10px 0;">
+                        <p><i class="fas fa-thermometer-half"></i> Cảnh báo nhiệt: <strong>> 38°C</strong></p>
+                        <p><i class="fas fa-tint"></i> Tưới khi đất: <strong>< 30%</strong></p>
+                    </div>
+                    <button class="btn-sm btn-on" style="width: 100%">Cấu hình AI</button>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <script src="../assets/js/api.js"></script>
+    <script src="../assets/js/main.js"></script>
+</body>
+</html> -->

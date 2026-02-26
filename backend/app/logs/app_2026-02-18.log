@@ -1,0 +1,8 @@
+2026-02-18 17:51:29,102 - crud.device - INFO - Request update Device ID: ESP32_WOKWI_01
+2026-02-18 17:51:29,104 - crud.device - INFO - Data to be saved (Filtered): {'name': 'New ESP32 (I_01)', 'zone_id': None}
+2026-02-18 17:51:29,107 - crud.device - INFO - ✅ Device ESP32_WOKWI_01 updated successfully.
+2026-02-18 18:00:04,965 - crud.device - INFO - Request update Device ID: ESP32_WOKWI_01
+2026-02-18 18:00:04,968 - crud.device - INFO - Data to be saved (Filtered): {'name': 'New ESP32 (I_01)', 'zone_id': 1}
+2026-02-18 18:00:04,976 - crud.device - INFO - ✅ Device ESP32_WOKWI_01 updated successfully.
+2026-02-18 18:23:54,635 - crud.device - INFO - Admin creating new device: ESP32_REALX23_01 - ESP32 VƯỜN CẢI NGỌT
+2026-02-18 18:23:54,647 - crud.device - INFO - Device created successfully: ESP32_REALX23_01

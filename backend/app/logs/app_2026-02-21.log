@@ -1,0 +1,2 @@
+2026-02-21 10:38:02,822 - crud.device - INFO - ACTION TRIGGERED: ESP32_WOKWI_01 -> PUMP_ON | By: MANUAL | Reason: Điều khiển tay bởi UserRole.FARMER: tech
+2026-02-21 10:38:08,185 - crud.device - INFO - ACTION TRIGGERED: ESP32_WOKWI_01 -> MIST_ON | By: MANUAL | Reason: Điều khiển tay bởi UserRole.FARMER: tech

@@ -1,0 +1,94 @@
+{
+  "version": 1,
+  "author": "Smart Farm IoT",
+  "editor": "wokwi",
+  "parts": [
+    {
+      "type": "board-esp32-devkit-c-v4",
+      "id": "esp-sensor",
+      "top": -9.6,
+      "left": -225.56,
+      "attrs": { 
+          "env": "esp32doit-devkit-v1", 
+          "elf": "Sensor_Node/.pio/build/esp32doit-devkit-v1/firmware.elf" 
+      }
+    },
+    {
+      "type": "board-esp32-devkit-c-v4",
+      "id": "esp-control",
+      "top": -9.6,
+      "left": 273.64,
+      "attrs": { 
+          "env": "esp32doit-devkit-v1", 
+          "elf": "Control_Node/.pio/build/esp32doit-devkit-v1/firmware.elf" 
+      }
+    },
+    {
+      "type": "board-esp32-devkit-c-v4",
+      "id": "esp-gateway",
+      "top": 201.6,
+      "left": 33.64,
+      "attrs": { 
+          "env": "esp32doit-devkit-v1", 
+          "elf": "Gateway_Node/.pio/build/esp32doit-devkit-v1/firmware.elf" 
+      }
+    },
+    { "type": "wokwi-lcd2004", "id": "lcd-gateway", "top": 496, "left": 5.6, "attrs": { "pins": "i2c" } },
+    { "type": "wokwi-dht22", "id": "dht1", "top": -210.9, "left": -101.4, "attrs": { "temperature": "24", "humidity": "60" } },
+    { "type": "wokwi-potentiometer", "id": "pot-soil", "top": -58.9, "left": -470.6, "attrs": { "label": "Do Am Dat" } },
+    { "type": "wokwi-photoresistor-sensor", "id": "ldr1", "top": 166.4, "left": -488.8, "attrs": {} },
+    { "type": "wokwi-relay-module", "id": "relay-pump", "top": -134.6, "left": 470.4, "attrs": {} },
+    { "type": "wokwi-relay-module", "id": "relay-light", "top": 9.4, "left": 470.4, "attrs": {} },
+    { "type": "wokwi-relay-module", "id": "relay-mist", "top": 153.4, "left": 470.4, "attrs": {} },
+    { "type": "wokwi-led", "id": "led-pump", "top": -147.6, "left": 618.2, "attrs": { "color": "blue", "label": "BOM NUOC" } },
+    { "type": "wokwi-led", "id": "led-light", "top": 3.6, "left": 618.2, "attrs": { "color": "yellow", "label": "DEN SANG" } },
+    { "type": "wokwi-led", "id": "led-mist", "top": 147.6, "left": 618.2, "attrs": { "color": "cyan", "label": "PHUN SUONG" } },
+    { "type": "wokwi-resistor", "id": "r1", "top": -82.45, "left": 643.2, "attrs": { "value": "220" } },
+    { "type": "wokwi-resistor", "id": "r2", "top": 71.15, "left": 643.2, "attrs": { "value": "220" } },
+    { "type": "wokwi-resistor", "id": "r3", "top": 215.15, "left": 643.2, "attrs": { "value": "220" } },
+    { "type": "wokwi-text", "id": "txt1", "top": -144, "left": -230.4, "attrs": { "fontSize": "20", "text": "SENSOR" } },
+    { "type": "wokwi-text", "id": "txt2", "top": -144, "left": 278.4, "attrs": { "fontSize": "20", "text": "CONTROL" } },
+    { "type": "wokwi-text", "id": "txt3", "top": 134.4, "left": 48, "attrs": { "fontSize": "20", "text": "GATEWAY", "color": "red" } }
+  ],
+  "connections": [
+    [ "esp-sensor:TX", "$serialMonitor:RX", "", [] ],
+    [ "esp-control:TX", "$serialMonitor:RX", "", [] ],
+    [ "esp-gateway:TX", "$serialMonitor:RX", "", [] ],
+    
+    [ "esp-sensor:GND.2", "dht1:GND", "black", [ "h0" ] ],
+    [ "dht1:VCC", "esp-sensor:3V3", "red", [ "h-163.2", "v115.2" ] ],
+    [ "dht1:SDA", "esp-sensor:4", "orange", [ "v0" ] ], 
+    [ "pot-soil:GND", "esp-sensor:GND.1", "black", [ "v0" ] ],
+    [ "pot-soil:VCC", "esp-sensor:3V3", "red", [ "v0" ] ],
+    [ "pot-soil:SIG", "esp-sensor:34", "green", [ "v0" ] ],
+    [ "ldr1:GND", "esp-sensor:GND.1", "black", [ "v0" ] ],
+    [ "ldr1:VCC", "esp-sensor:3V3", "red", [ "h67.2", "v-163.2" ] ],
+    [ "ldr1:AO", "esp-sensor:35", "purple", [ "h28.8", "v-144.7" ] ],
+    [ "esp-control:GND.2", "relay-pump:GND", "black", [ "v-172.8", "h76.8", "v48" ] ],
+    [ "esp-control:3V3", "relay-pump:VCC", "red", [ "v-201.6", "h163.35", "v66.8" ] ],
+    [ "esp-control:18", "relay-pump:IN", "blue", [ "h38.4", "v-192.2" ] ],
+    [ "esp-control:GND.2", "relay-light:GND", "black", [ "v-172.8", "h76.8", "v192" ] ],
+    [ "esp-control:3V3", "relay-light:VCC", "red", [ "v-201.6", "h163.35", "v210.8" ] ],
+    [ "esp-control:19", "relay-light:IN", "yellow", [ "h38.4", "v-38.6" ] ],
+    [ "esp-control:GND.2", "relay-mist:GND", "black", [ "v-172.8", "h76.8", "v336" ] ],
+    [ "esp-control:3V3", "relay-mist:VCC", "red", [ "v-201.6", "h163.35", "v354.8" ] ],
+    [ "esp-control:21", "relay-mist:IN", "cyan", [ "h38.4", "v124.6" ] ],
+    [ "relay-pump:COM", "esp-control:3V3", "red", [ "h-28.8", "v-77.8", "h-277.35" ] ],
+    [ "relay-pump:NO", "led-pump:A", "green", [ "v0" ] ],
+    [ "led-pump:C", "r1:1", "black", [ "v0" ] ],
+    [ "r1:2", "esp-control:GND.1", "black", [ "v0" ] ],
+    [ "relay-light:COM", "esp-control:3V3", "red", [ "h-28.8", "v-221.8", "h-277.35" ] ],
+    [ "relay-light:NO", "led-light:A", "green", [ "v0" ] ],
+    [ "led-light:C", "r2:1", "black", [ "v0" ] ],
+    [ "r2:2", "esp-control:GND.1", "black", [ "v0" ] ],
+    [ "relay-mist:COM", "esp-control:3V3", "red", [ "h-28.8", "v-365.8", "h-277.35" ] ],
+    [ "relay-mist:NO", "led-mist:A", "green", [ "v0" ] ],
+    [ "led-mist:C", "r3:1", "black", [ "v0" ] ],
+    [ "r3:2", "esp-control:GND.1", "black", [ "v0" ] ],
+    [ "esp-gateway:VIN", "lcd-gateway:VCC", "red", [ "v0" ] ],
+    [ "esp-gateway:GND.1", "lcd-gateway:GND", "black", [ "h-67.05", "v172.8" ] ],
+    [ "esp-gateway:21", "lcd-gateway:SDA", "blue", [ "h-182.4", "v268.6" ] ],
+    [ "esp-gateway:22", "lcd-gateway:SCL", "green", [ "h-192", "v306.9" ] ]
+  ],
+  "dependencies": {}
+}

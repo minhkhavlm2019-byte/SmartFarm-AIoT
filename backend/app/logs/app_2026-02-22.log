@@ -1,0 +1,9 @@
+2026-02-22 13:20:00,483 - crud.device - INFO - ACTION TRIGGERED: ESP32_WOKWI_01 -> PUMP_ON | By: MANUAL | Reason: Điều khiển tay bởi UserRole.FARMER: tech
+2026-02-22 13:25:20,878 - crud.device - INFO - ACTION TRIGGERED: ESP32_WOKWI_01 -> PUMP_ON | By: MANUAL | Reason: Điều khiển tay bởi UserRole.FARMER: tech
+2026-02-22 14:17:52,758 - crud.device - INFO - ACTION TRIGGERED: ESP32_WOKWI_01 -> PUMP_ON | By: MANUAL | Reason: Điều khiển tay bởi UserRole.FARMER: tech
+2026-02-22 22:10:07,565 - AI_Irrigation - ERROR - ❌ Logic Tự động: Lỗi load model AI: No module named 'sklearn'
+2026-02-22 22:10:49,182 - AI_Irrigation - ERROR - ❌ Logic Tự động: Lỗi load model AI: No module named 'sklearn'
+2026-02-22 22:10:49,325 - AI_Irrigation - INFO - 🌱 Khởi động tiến trình AI Giám sát, Xử lý sự cố và Ghi Log...
+2026-02-22 22:17:33,652 - AI_Irrigation - INFO - 🤖 Logic Tự động: Đã nạp thành công bộ não AI!
+2026-02-22 22:18:15,926 - AI_Irrigation - INFO - 🤖 Logic Tự động: Đã nạp thành công bộ não AI!
+2026-02-22 22:18:16,086 - AI_Irrigation - INFO - 🌱 Khởi động tiến trình AI Giám sát, Xử lý sự cố và Ghi Log...

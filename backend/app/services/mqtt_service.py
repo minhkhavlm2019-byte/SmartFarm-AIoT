@@ -65,23 +65,64 @@ def on_message(client, userdata, msg):
             print("⚠️ Gói tin thiếu trường dữ liệu quan trọng")
             return
 
-        # --- LƯU VÀO DATABASE ---
+        # --- KIỂM TRA & LƯU VÀO DATABASE ---
         if sensor_data and device_id:
             try:
-                # Map dữ liệu vào Schema (dùng .get để tránh lỗi nếu thiếu trường)
+                from models.models import Device
+                from datetime import datetime
+                
+                device = db.query(Device).filter(Device.device_id == device_id).first()
+                if not device:
+                    print("⚠️ Mạch gửi dữ liệu nhưng không tồn tại trong CSDL!")
+                    return
+
+                # Trích xuất dữ liệu cảm biến
+                temp = float(sensor_data.get("temp", 0))
+                hum_air = float(sensor_data.get("hum_air", 0))
+                hum_soil = float(sensor_data.get("hum_soil", 0))
+                light = float(sensor_data.get("light", 0))
+
+                # ==========================================
+                # CƠ CHẾ 1: PHÁT HIỆN LỖI (ERROR DETECTION)
+                # ==========================================
+                # Giả sử cảm biến hỏng sẽ gửi nhiệt độ = -999 hoặc -50
+                is_error = False
+                if temp <= -50 or temp >= 100 or hum_soil < 0 or hum_soil > 100:
+                    is_error = True
+
+                if is_error:
+                    if device.status != "ERROR":
+                        device.status = "ERROR"
+                        print(f"🛠️ [LỖI PHẦN CỨNG] Mạch '{device.name}' gửi dữ liệu bất thường (T={temp}, H={hum_soil}). Đã chuyển sang ERROR!")
+                    device.last_seen = datetime.now() # Vẫn cập nhật giờ để biết nó chưa chết hẳn
+                    db.commit()
+                    return # CHẶN LẠI! Không lưu cục dữ liệu rác này vào bảng SensorData!
+
+                # ==========================================
+                # CƠ CHẾ 2: PHỤC HỒI (RECOVERY) & GIA HẠN SỰ SỐNG
+                # ==========================================
+                # Nếu dữ liệu hợp lệ và mạch đang bị đánh dấu OFFLINE hoặc ERROR -> Phục hồi về ONLINE
+                if device.status in ["OFFLINE", "ERROR"]:
+                    device.status = "ONLINE"
+                    print(f"🎉 [PHỤC HỒI] Mạch '{device.name}' đã hoạt động bình thường trở lại!")
+                
+                # Cập nhật nhịp tim (Bơm máu)
+                device.last_seen = datetime.now()
+                # (Không cần db.commit() ở đây vì hàm create_sensor_reading bên dưới đã commit)
+                device.pump_state = bool(sensor_data.get("pump_state", device.pump_state))
+                device.light_state = bool(sensor_data.get("light_state", device.light_state))
+                device.mist_state = bool(sensor_data.get("mist_state", device.mist_state))
+                # Map dữ liệu vào Schema
                 sensor_input = schemas.SensorDataInput(
-                    temp=float(sensor_data.get("temp", 0)),
-                    hum_air=float(sensor_data.get("hum_air", 0)),
-                    hum_soil=float(sensor_data.get("hum_soil", 0)),
-                    light=float(sensor_data.get("light", 0))
+                    temp=temp, hum_air=hum_air, hum_soil=hum_soil, light=light
                 )
 
-                # Gọi hàm CRUD để lưu
+                # Gọi hàm CRUD để lưu lịch sử
                 crud_device.create_sensor_reading(db, sensor_input, device_id)
-                print(f"💾 [DB] Saved: Dev={device_id} | T={sensor_input.temp} | H={sensor_input.hum_air}")
+                print(f"💾 [DB] Saved: Dev={device_id} | T={temp} | H={hum_air} | Đất={hum_soil} | AS={light}")
 
             except Exception as e:
-                print(f"❌ Lỗi khi lưu vào DB: {e}")
+                print(f"❌ Lỗi khi xử lý DB MQTT: {e}")
 
     except Exception as e:
         print(f"❌ Lỗi hệ thống MQTT: {e}")

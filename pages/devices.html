@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Quản lý Thiết bị</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="wrapper">
+        <nav class="sidebar">
+            <div class="logo"><h3>🌱 Smart Farm</h3></div>
+            <ul>
+                <li onclick="location.href='../dashboard.html'"><i class="fas fa-home"></i> Trang Chủ</li>
+                <li onclick="location.href='zones.html'"><i class="fas fa-layer-group"></i> Quản lý Zone</li>
+                <li class="active" onclick="location.href='devices.html'"><i class="fas fa-microchip"></i> Thiết bị IoT</li>
+            </ul>
+        </nav>
+
+        <main class="content">
+            <header>
+                <h2>Danh sách Thiết bị IoT</h2>
+            </header>
+
+            <section class="tab-content" style="display: block;">
+                <button onclick="showAddDeviceForm()" class="admin-only" style="margin-bottom: 15px; padding: 10px; background: #27ae60; color: white; border: none; cursor: pointer;">
+                    <i class="fas fa-plus"></i> Thêm Thiết Bị
+                </button>
+                <button onclick="loadDevices()" style="margin-bottom: 15px; padding: 10px; cursor: pointer;">
+                    <i class="fas fa-sync"></i> Làm mới
+                </button>
+
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID Thiết bị</th>
+                            <th>Tên</th>
+                            <th>Khu vực (Zone)</th>
+                            <th>Trạng thái</th>
+                            <th>Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody id="device-table-body">
+                        <tr><td colspan="5">Đang tải dữ liệu...</td></tr>
+                    </tbody>
+                </table>
+            </section>
+        </main>
+    </div>
+
+    <div id="addDeviceModal" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:white; padding:20px; border:1px solid #ccc; box-shadow: 0 0 10px rgba(0,0,0,0.5); z-index: 1000; width: 300px; border-radius: 8px;">
+        <h3 style="margin-top: 0;">Thêm Thiết Bị Mới</h3>
+        
+        <label>ID Thiết bị (MAC):</label>
+        <input type="text" id="new_device_id" placeholder="VD: ESP32_01" style="display:block; margin:5px 0 15px; width: 100%; padding: 8px; box-sizing: border-box;">
+        
+        <label>Tên hiển thị:</label>
+        <input type="text" id="new_device_name" placeholder="VD: Vườn Lan" style="display:block; margin:5px 0 15px; width: 100%; padding: 8px; box-sizing: border-box;">
+        
+        <div style="text-align: right;">
+            <button onclick="document.getElementById('addDeviceModal').style.display='none'" class="btn-sm btn-off">Hủy</button>
+            <button onclick="submitNewDevice()" class="btn-sm btn-on">Lưu</button>
+        </div>
+    </div>
+
+    <script src="../assets/js/api.js"></script>
+    <script>
+        // --- 1. KHỞI TẠO ---
+        document.addEventListener("DOMContentLoaded", () => {
+            loadDevices();
+        });
+
+        // --- 2. HÀM TẢI DANH SÁCH ---
+        async function loadDevices() {
+            const tbody = document.getElementById('device-table-body');
+            tbody.innerHTML = '<tr><td colspan="5">Đang cập nhật...</td></tr>';
+
+            // Gọi API: GET /devices/
+            const devices = await fetchAPI('/devices/');
+
+            if (devices) {
+                tbody.innerHTML = ''; 
+                if (devices.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="5">Chưa có thiết bị nào.</td></tr>';
+                    return;
+                }
+
+                devices.forEach(dev => {
+                    const statusClass = dev.status === 'ONLINE' ? 'online' : 'offline';
+                    
+                    const row = `
+                        <tr>
+                            <td>${dev.device_id}</td>
+                            <td>${dev.name}</td>
+                            <td>${dev.zone_id ? 'Zone ' + dev.zone_id : 'Chưa gán'}</td>
+                            <td><span class="tag ${statusClass}">${dev.status}</span></td>
+                            <td>
+                                <button onclick="controlDevice('${dev.device_id}', 'PUMP_ON')" class="btn-sm btn-on">Bật Bơm</button>
+                                <button onclick="controlDevice('${dev.device_id}', 'PUMP_OFF')" class="btn-sm btn-off">Tắt Bơm</button>
+                            </td>
+                        </tr>
+                    `;
+                    tbody.innerHTML += row;
+                });
+            } else {
+                tbody.innerHTML = '<tr><td colspan="5" style="color:red">Lỗi tải dữ liệu!</td></tr>';
+            }
+        }
+
+        // --- 3. HÀM ĐIỀU KHIỂN ---
+        async function controlDevice(deviceId, action) {
+            // Không cần confirm cho nhanh, hoặc giữ lại nếu muốn an toàn
+            console.log(`Sending ${action} to ${deviceId}`);
+            
+            // Gọi API: POST /devices/{id}/control
+            const result = await fetchAPI(`/devices/${deviceId}/control?action=${action}`, 'POST');
+            
+            if(result) {
+                alert(`Đã gửi lệnh: ${action}`);
+            }
+        }
+
+        // --- 4. HÀM XỬ LÝ FORM THÊM MỚI ---
+        function showAddDeviceForm() {
+            document.getElementById('addDeviceModal').style.display = 'block';
+        }
+
+        async function submitNewDevice() {
+            const id = document.getElementById('new_device_id').value.trim();
+            const name = document.getElementById('new_device_name').value.trim();
+
+            if(!id) return alert("Vui lòng nhập Device ID!");
+
+            const payload = {
+                device_id: id,
+                name: name || `Device ${id}`, // Nếu không nhập tên thì lấy ID làm tên
+                zone_id: null
+            };
+
+            // Gọi API tạo mới
+            const response = await fetchAPI('/devices/', 'POST', payload);
+            
+            if(response) {
+                alert("Thêm thành công!");
+                document.getElementById('addDeviceModal').style.display = 'none';
+                
+                // Reset form
+                document.getElementById('new_device_id').value = '';
+                document.getElementById('new_device_name').value = '';
+
+                // Tải lại danh sách
+                loadDevices(); 
+            }
+        }
+    </script>
+</body>
+</html>
+<!-- <!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Quản lý Thiết bị</title>
+    <link rel="stylesheet" href="../assets/css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="wrapper">
+        <nav class="sidebar">
+            <div class="logo"><h3>🌱 Smart Farm</h3></div>
+            <ul>
+                <li onclick="location.href='../dashboard.html'"><i class="fas fa-home"></i> Trang Chủ</li>
+                <li onclick="location.href='zones.html'"><i class="fas fa-layer-group"></i> Quản lý Zone</li>
+                <li class="active" onclick="location.href='devices.html'"><i class="fas fa-microchip"></i> Thiết bị IoT</li>
+                </ul>
+        </nav>
+
+        <main class="content">
+            <header>
+                <h2>Danh sách Thiết bị IoT</h2>
+            </header>
+
+            <section class="tab-content" style="display: block;">
+                <button onclick="showAddDeviceForm()" style="margin-bottom: 15px; padding: 10px;">
+                    <i class="fas fa-plus"></i> Thêm Thiết Bị
+                </button>
+                <button onclick="loadDevices()" style="margin-bottom: 15px; padding: 10px;">
+                    <i class="fas fa-sync"></i> Làm mới
+                </button>
+
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ID Thiết bị</th>
+                            <th>Tên</th>
+                            <th>Khu vực (Zone)</th>
+                            <th>Trạng thái</th>
+                            <th>Hành động</th>
+                        </tr>
+                    </thead>
+                    <tbody id="device-table-body">
+                        <tr><td colspan="5">Đang tải dữ liệu...</td></tr>
+                    </tbody>
+                </table>
+            </section>
+        </main>
+    </div>
+    <div id="addDeviceModal" style="display:none; position:fixed; top:50%; left:50%; transform:translate(-50%, -50%); background:white; padding:20px; border:1px solid #ccc; box-shadow: 0 0 10px rgba(0,0,0,0.5); z-index: 1000;">
+    <h3>Thêm Thiết Bị Mới</h3>
+    <input type="text" id="new_device_id" placeholder="Device ID (VD: ESP32_03)" style="display:block; margin:10px 0; width: 100%; padding: 8px;">
+    <input type="text" id="new_device_name" placeholder="Tên hiển thị (VD: Vườn Lan)" style="display:block; margin:10px 0; width: 100%; padding: 8px;">
+    <button onclick="submitNewDevice()" class="btn-sm btn-on">Lưu</button>
+    <button onclick="document.getElementById('addDeviceModal').style.display='none'" class="btn-sm btn-off">Hủy</button>
+</div>
+
+    <script src="../assets/js/api.js"></script>
+    <script>
+        // Hàm chạy ngay khi trang tải xong
+        document.addEventListener("DOMContentLoaded", () => {
+            loadDevices();
+        });
+
+        // Hàm lấy danh sách thiết bị thật từ Server
+        async function loadDevices() {
+            const tbody = document.getElementById('device-table-body');
+            tbody.innerHTML = '<tr><td colspan="5">Đang cập nhật...</td></tr>';
+
+            // Gọi API: GET /devices
+            const devices = await fetchAPI('/devices/');
+
+            if (devices) {
+                tbody.innerHTML = ''; // Xóa dòng "Đang tải..."
+                
+                devices.forEach(dev => {
+                    // Tạo màu cho trạng thái
+                    const statusClass = dev.status === 'ONLINE' ? 'online' : 'offline';
+                    
+                    const row = `
+                        <tr>
+                            <td>${dev.device_id}</td>
+                            <td>${dev.name}</td>
+                            <td>${dev.zone_id ? 'Zone ' + dev.zone_id : 'Chưa gán'}</td>
+                            <td><span class="tag ${statusClass}">${dev.status}</span></td>
+                            <td>
+                                <button onclick="controlDevice('${dev.device_id}', 'PUMP_ON')" class="btn-sm btn-on">Bật Bơm</button>
+                                <button onclick="controlDevice('${dev.device_id}', 'PUMP_OFF')" class="btn-sm btn-off">Tắt Bơm</button>
+                            </td>
+                        </tr>
+                    `;
+                    tbody.innerHTML += row;
+                });
+            } else {
+                tbody.innerHTML = '<tr><td colspan="5" style="color:red">Lỗi tải dữ liệu!</td></tr>';
+            }
+        }
+
+        // Hàm điều khiển thiết bị
+        async function controlDevice(deviceId, action) {
+            if(confirm(`Gửi lệnh ${action} tới ${deviceId}?`)) {
+                // Gọi API: POST /devices/{id}/control
+                const result = await fetchAPI(`/devices/${deviceId}/control?action=${action}`, 'POST');
+                if(result) {
+                    alert("Lệnh đã gửi thành công!");
+                }
+            }
+        }
+    </script>
+    <script>
+    // --- 1. Hàm tải danh sách thiết bị (Đã có sẵn) ---
+    document.addEventListener("DOMContentLoaded", () => {
+        loadDevices();
+    });
+
+    async function loadDevices() {
+        const tbody = document.getElementById('device-table-body');
+        tbody.innerHTML = '<tr><td colspan="5">Đang cập nhật...</td></tr>';
+
+        // Gọi API qua hàm wrapper
+        const devices = await fetchAPI('/devices/');
+
+        if (devices) {
+            tbody.innerHTML = ''; 
+            devices.forEach(dev => {
+                const statusClass = dev.status === 'ONLINE' ? 'online' : 'offline';
+                // (Giữ nguyên logic render bảng của bạn ở đây...)
+                const row = `
+                    <tr>
+                        <td>${dev.device_id}</td>
+                        <td>${dev.name}</td>
+                        <td>${dev.zone_id ? 'Zone ' + dev.zone_id : 'Chưa gán'}</td>
+                        <td><span class="tag ${statusClass}">${dev.status}</span></td>
+                        <td>
+                            <button onclick="controlDevice('${dev.device_id}', 'PUMP_ON')" class="btn-sm btn-on">Bật</button>
+                            <button onclick="controlDevice('${dev.device_id}', 'PUMP_OFF')" class="btn-sm btn-off">Tắt</button>
+                        </td>
+                    </tr>
+                `;
+                tbody.innerHTML += row;
+            });
+        } else {
+            tbody.innerHTML = '<tr><td colspan="5" style="color:red">Lỗi tải dữ liệu!</td></tr>';
+        }
+    }
+
+    // --- 2. Hàm điều khiển thiết bị (Đã có sẵn) ---
+    async function controlDevice(deviceId, action) {
+        // (Giữ nguyên code cũ...)
+        if(confirm(`Gửi lệnh ${action} tới ${deviceId}?`)) {
+            await fetchAPI(`/devices/${deviceId}/control?action=${action}`, 'POST');
+            alert("Đã gửi lệnh!");
+        }
+    }
+
+    // --- 3. LOGIC THÊM MỚI (Vừa chuyển từ api.js sang) ---
+    function showAddDeviceForm() {
+        // Đảm bảo bạn đã thêm đoạn HTML Modal vào body trước đó
+        const modal = document.getElementById('addDeviceModal');
+        if(modal) modal.style.display = 'block';
+    }
+
+    async function submitNewDevice() {
+        const id = document.getElementById('new_device_id').value;
+        const name = document.getElementById('new_device_name').value;
+
+        if(!id) return alert("Vui lòng nhập Device ID!");
+
+        const payload = {
+            device_id: id,
+            name: name,
+            zone_id: null
+        };
+
+        // Gọi API tạo mới
+        const response = await fetchAPI('/devices/', 'POST', payload);
+        
+        if(response) {
+            alert("Thêm thành công!");
+            document.getElementById('addDeviceModal').style.display = 'none';
+            
+            // Xóa form
+            document.getElementById('new_device_id').value = '';
+            document.getElementById('new_device_name').value = '';
+
+            // Quan trọng: Gọi lại hàm loadDevices() đang nằm ngay trong file này
+            loadDevices(); 
+        }
+    }
+</script>
+</body>
+</html> -->

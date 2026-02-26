@@ -60,11 +60,19 @@ class DeviceCreate(DeviceBase):
     """Dùng khi tạo thiết bị mới"""
     device_id: str = Field(..., min_length=12, max_length=17, description="MAC Address")
     name: str = "New Device"
+    zone_id: Optional[int] = None
 
-class DeviceUpdate(DeviceBase):
-    """Dùng khi đổi tên thiết bị hoặc chuyển Zone"""
-    status: Optional[DeviceStatus] = None
+# Trong schemas/device.py
 
+class DeviceUpdate(BaseModel):
+    """
+    Schema dùng cho method PUT. 
+    Các trường là Optional để cho phép cập nhật từng phần.
+    """
+    name: Optional[str] = None
+    zone_id: Optional[int] = None
+    status: Optional[DeviceStatus] = None # Thêm trường này nếu muốn Admin đổi trạng thái
+    
 class DeviceResponse(DeviceBase):
     """
     Thông tin chi tiết thiết bị trả về cho App
@@ -74,9 +82,16 @@ class DeviceResponse(DeviceBase):
     status: DeviceStatus
     last_seen: Optional[datetime] = None
     fw_version: Optional[str] = None
+    pump_state: Optional[bool] = False
+    light_state: Optional[bool] = False
+    mist_state: Optional[bool] = False
     
     # Kèm theo trạng thái mới nhất (Optional)
     current_sensor: Optional[SensorDataResponse] = None
+    temp: Optional[float] = None
+    hum_soil: Optional[float] = None
+    hum_air: Optional[float] = None
+    light: Optional[float] = None
 
     class Config:
         from_attributes = True
